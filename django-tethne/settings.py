@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'django-tethne.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'tethne',
         'USER':'tethneuser',
         'PASSWORD':'password',
