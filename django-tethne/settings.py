@@ -35,8 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'django.contrib.messages',    'django.contrib.staticfiles',
     'django-tethne'
 ]
 
@@ -77,10 +76,9 @@ WSGI_APPLICATION = 'django-tethne.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'tethne',
-        'USER':'tethneuser',
-        'PASSWORD':'password',
+        'USER':'root',
         'HOST': 'localhost',
         'PORT': '',
     }
