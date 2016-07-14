@@ -48,7 +48,7 @@ class CorpusHandler(object):
         for tethne_paper in self.tethne_corpus:
             paper_id = self._handle_paper(tethne_paper)
 
-            for tethne_reference in tethne_paper.citedReferences:
+            for tethne_reference in getattr(tethne_paper, 'citedReferences', []):
                 self._handle_cited_reference(tethne_reference, paper_id)
 
             if len(self.hoppers['Paper']) > self.batch_size:
@@ -190,6 +190,6 @@ class Command(BaseCommand):
         label = options.get('label')[0]
         batch_size = options.get('batch_size')[0]
 
-        tethne_corpus = wos.read(path)
+        tethne_corpus = wos.read(path, streaming=True)
         handler = CorpusHandler(tethne_corpus, label, batch_size)
         handler.run()

@@ -63,3 +63,5 @@ target/
 
 
 .env
+.tethne
+.tethne/*
