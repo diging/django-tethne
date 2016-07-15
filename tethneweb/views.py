@@ -1,3 +1,4 @@
+from django.db.models import Max
 from django.contrib.auth.models import User
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework import serializers, viewsets
@@ -12,6 +13,8 @@ from tethneweb.models import *
 from tethneweb.filters import *
 
 import cPickle as pickle
+import json
+
 
 
 def link_for(url_name, request, params):
@@ -188,12 +191,46 @@ class CorpusViewSet(PassRequestToSerializerMixin, CreatorOnlyMixin, viewsets.Mod
     queryset = Corpus.objects.all()
     serializer_class = CorpusSerializer
 
+    def create(self, request):
+        max_id = Corpus.objects.aggregate(Max('id'))['id__max']
+        if max_id:
+            max_id += 1
+        else:
+            max_id = 1
+        corpus = Corpus.objects.create(**{
+            'created_by': request.user,
+            'source': request.POST.get('source'),
+            'id': max_id,
+            'label': request.POST.get('label'),
+        })
+        serializer = self.get_serializer(corpus, request=request)
+        return Response(serializer.data)
+
 
 class AuthorInstanceViewSet(PassRequestToSerializerMixin, CreatorOnlyMixin, viewsets.ModelViewSet):
     queryset = AuthorInstance.objects.all()
     serializer_class = AuthorInstanceSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = AuthorInstanceFilter
+
+    def create(self, request):
+        max_id = AuthorInstance.objects.aggregate(Max('id'))['id__max']
+        if max_id:
+            max_id += 1
+        else:
+            max_id = 1
+        data = json.loads(request.POST.get('data'))
+        id_map = {}
+        if type(data) is list and len(data) > 0:
+            instances = []
+            for datum in data:
+                temp_ident = datum.pop('id')
+                id_map[temp_ident] = max_id
+                datum.update({'id': max_id, 'created_by': request.user})
+                max_id += 1
+                instances.append(AuthorInstance(**datum))
+            AuthorInstance.objects.bulk_create(instances)
+        return Response({'id_map': id_map})
 
 
 class InstitutionInstanceViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
@@ -202,12 +239,50 @@ class InstitutionInstanceViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = InstitutionInstanceFilter
 
+    def create(self, request):
+        max_id = InstitutionInstance.objects.aggregate(Max('id'))['id__max']
+        if max_id:
+            max_id += 1
+        else:
+            max_id = 1
+        data = json.loads(request.POST.get('data'))
+        id_map = {}
+        if type(data) is list and len(data) > 0:
+            instances = []
+            for datum in data:
+                temp_ident = datum.pop('id')
+                id_map[temp_ident] = max_id
+                datum.update({'id': max_id, 'created_by': request.user})
+                max_id += 1
+                instances.append(InstitutionInstance(**datum))
+            InstitutionInstance.objects.bulk_create(instances)
+        return Response({'id_map': id_map})
+
 
 class AffiliationInstanceViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
     queryset = AffiliationInstance.objects.all()
     serializer_class = AffiliationInstanceSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = AffiliationInstanceFilter
+
+    def create(self, request):
+        max_id = AffiliationInstance.objects.aggregate(Max('id'))['id__max']
+        if max_id:
+            max_id += 1
+        else:
+            max_id = 1
+        data = json.loads(request.POST.get('data'))
+        id_map = {}
+        if type(data) is list and len(data) > 0:
+            instances = []
+            for datum in data:
+                temp_ident = datum.pop('id')
+                id_map[temp_ident] = max_id
+                datum.update({'id': max_id, 'created_by': request.user})
+                max_id += 1
+                instances.append(AffiliationInstance(**datum))
+            AffiliationInstance.objects.bulk_create(instances)
+        return Response({'id_map': id_map})
 
 
 class PaperViewSet(PassRequestToSerializerMixin, CreatorOnlyMixin, viewsets.ModelViewSet):
@@ -216,6 +291,29 @@ class PaperViewSet(PassRequestToSerializerMixin, CreatorOnlyMixin, viewsets.Mode
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = PaperFilter
 
+    def create(self, request):
+        max_id = Paper.objects.aggregate(Max('id'))['id__max']
+        if max_id:
+            max_id += 1
+        else:
+            max_id = 1
+        data = json.loads(request.POST.get('data'))
+        id_map = {}
+        if type(data) is list and len(data) > 0:
+            instances = []
+            for datum in data:
+                temp_ident = datum.pop('id')
+                id_map[temp_ident] = max_id
+                datum.update({'id': max_id, 'created_by': request.user})
+                # Citations may be lurking in here.
+                if 'cited_by_id' in datum:
+                    ident = datum['cited_by_id']
+                    datum['cited_by_id'] = id_map.get(ident, ident)
+                max_id += 1
+                instances.append(Paper(**datum))
+            Paper.objects.bulk_create(instances)
+        return Response({'id_map': id_map})
+
 
 class MetadatumViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
     queryset = Metadatum.objects.all()
@@ -223,9 +321,47 @@ class MetadatumViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = MetadatumFilter
 
+    def create(self, request):
+        max_id = Metadatum.objects.aggregate(Max('id'))['id__max']
+        if max_id:
+            max_id += 1
+        else:
+            max_id = 1
+        data = json.loads(request.POST.get('data'))
+        id_map = {}
+        if type(data) is list and len(data) > 0:
+            instances = []
+            for datum in data:
+                temp_ident = datum.pop('id')
+                id_map[temp_ident] = max_id
+                datum.update({'id': max_id, 'created_by': request.user})
+                max_id += 1
+                instances.append(Metadatum(**datum))
+            Metadatum.objects.bulk_create(instances)
+        return Response({'id_map': id_map})
+
 
 class IdentifierViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
     queryset = Identifier.objects.all()
     serializer_class = IdentifierSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = IdentifierFilter
+
+    def create(self, request):
+        max_id = Identifier.objects.aggregate(Max('id'))['id__max']
+        if max_id:
+            max_id += 1
+        else:
+            max_id = 1
+        data = json.loads(request.POST.get('data'))
+        id_map = {}
+        if type(data) is list and len(data) > 0:
+            instances = []
+            for datum in data:
+                temp_ident = datum.pop('id')
+                id_map[temp_ident] = max_id
+                datum.update({'id': max_id, 'created_by': request.user})
+                max_id += 1
+                instances.append(Identifier(**datum))
+            Identifier.objects.bulk_create(instances)
+        return Response({'id_map': id_map})
