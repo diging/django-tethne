@@ -93,6 +93,8 @@ class CorpusHandler(object):
             metadata.append({
                 'name': field,
                 'value': value,
+                'corpus_id': self.corpus.id,
+                'created_by_id': 1,
             })
         return metadata
 
@@ -105,7 +107,9 @@ class CorpusHandler(object):
             if value:
                 identifiers.append({
                     'name': field,
-                    'value': value
+                    'value': value,
+                    'corpus_id': self.corpus.id,
+                    'created_by_id': 1,
                 })
         return identifiers
 
@@ -117,7 +121,10 @@ class CorpusHandler(object):
             if value:
                 paper_data[dbfield] = value
 
-        paper_data.update({'corpus_id': self.corpus.id,})
+        paper_data.update({
+            'corpus_id': self.corpus.id,
+            'created_by_id': 1,
+        })
         paper_data.update(**additional)
         paper_id = self._add_instance('Paper', Paper(**paper_data))
 
@@ -146,6 +153,8 @@ class CorpusHandler(object):
             'country': address[1],
             'address': address[2],
             'paper_id': paper_id,
+            'corpus_id': self.corpus.id,
+            'created_by_id': 1,
         }))
 
     def _handle_authors(self, tethne_paper, paper_id):
@@ -169,6 +178,8 @@ class CorpusHandler(object):
                 'paper_id': paper_id,
                 'last_name': tethne_author[0][0],
                 'first_name': tethne_author[0][1],
+                'corpus_id': self.corpus.id,
+                'created_by_id': 1,
             }))
 
             tethne_affiliations = institutions.get(tethne_author,
@@ -183,6 +194,8 @@ class CorpusHandler(object):
                     'author_id': author_id,
                     'institution_id': institution_id,
                     'confidence': 1./len(tethne_affiliations),
+                    'corpus_id': self.corpus.id,
+                    'created_by_id': 1,
                 }))
 
 

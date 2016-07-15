@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from rest_framework import routers
-
+from rest_framework.authtoken import views as auth_views
 from tethneweb import views
 
 router = routers.DefaultRouter()
@@ -27,9 +27,12 @@ router.register(r'author_instance', views.AuthorInstanceViewSet)
 router.register(r'institution_instance', views.InstitutionInstanceViewSet)
 router.register(r'affiliation_instance', views.AffiliationInstanceViewSet)
 router.register(r'metadatum', views.MetadatumViewSet)
+router.register(r'identifier', views.IdentifierViewSet)
+
 
 urlpatterns = [
     url(r'^rest/', include(router.urls)),
     url(r'^admin/', admin.site.urls),
+    url(r'^api-token-auth/', auth_views.obtain_auth_token),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

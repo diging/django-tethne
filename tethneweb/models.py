@@ -2,6 +2,15 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class CorpusComponentMixin(models.Model):
+    corpus = models.ForeignKey('Corpus')
+    date_created = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User)
+
+    class Meta:
+        abstract = True
+
+
 class DisambiguationModel(models.Model):
     """
     A system of assertions about identities and affiliations.
@@ -59,7 +68,7 @@ class Corpus(models.Model):
         return self.papers.count()
 
 
-class Metadatum(models.Model):
+class Metadatum(CorpusComponentMixin):
     """
     Catch-all model for freeform bibliographic metadata.
     """
@@ -70,7 +79,7 @@ class Metadatum(models.Model):
     """The record that the :class:`.Metadatum` describes."""
 
 
-class Identifier(models.Model):
+class Identifier(CorpusComponentMixin):
     """
     A unique identifier for a :class:`.Paper`\.
     """
@@ -85,12 +94,11 @@ class Identifier(models.Model):
     value = models.CharField(max_length=255)
 
 
-class Paper(models.Model):
+class Paper(CorpusComponentMixin):
     """
     A single bibliographic record.
     """
     id = models.PositiveIntegerField(primary_key=True)
-    corpus = models.ForeignKey(Corpus, related_name='papers')
     publication_date = models.IntegerField(null=True, blank=True)
     title = models.CharField(max_length=255, null=True, blank=True)
     volume = models.CharField(max_length=40, null=True, blank=True)
@@ -100,23 +108,6 @@ class Paper(models.Model):
 
     concrete = models.BooleanField(default=True)
     cited_by = models.ForeignKey('Paper', related_name='cited_references', null=True, blank=True)
-
-
-# class CitedReference(models.Model):
-#     """
-#     A bibliographic reference in a :class:`.Paper`\.
-#     """
-#
-#
-#     id = models.PositiveIntegerField(primary_key=True)
-#     corpus = models.ForeignKey(Corpus, related_name='citations')
-#
-#     publication_date = models.DateField(null=True)
-#     title = models.CharField(max_length=255, null=True, blank=True)
-#     volume = models.CharField(max_length=40, null=True, blank=True)
-#     issue = models.CharField(max_length=40, null=True, blank=True)
-#     journal = models.CharField(max_length=255, null=True, blank=True)
-#     abstract = models.TextField(null=True)
 
 
 class Author(models.Model):
@@ -155,7 +146,7 @@ class Institution(models.Model):
     country = models.CharField(max_length=255, null=True, blank=True)
 
 
-class AuthorInstance(models.Model):
+class AuthorInstance(CorpusComponentMixin):
     """
     An instantiation of an :class:`.Author` in a particular bibliographic
     record.
@@ -172,7 +163,7 @@ class AuthorInstance(models.Model):
     last_name = models.CharField(max_length=255)
 
 
-class InstitutionInstance(models.Model):
+class InstitutionInstance(CorpusComponentMixin):
     """
     An instantiation of an :class:`.Institution` in a particular bibliographic
     record.
@@ -194,7 +185,7 @@ class InstitutionInstance(models.Model):
     country = models.CharField(max_length=255, null=True, blank=True)
 
 
-class AffiliationInstance(models.Model):
+class AffiliationInstance(CorpusComponentMixin):
     """
     A (probable) affiliation between an :class:`.AuthorInstance` and an
     :class:`.InstitutionInstance`\.

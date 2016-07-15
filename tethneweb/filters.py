@@ -29,14 +29,14 @@ class AuthorInstanceFilter(filters.FilterSet):
 
     class Meta:
         model = AuthorInstance
-        fields = ['id', 'paper', 'first_name', 'last_name']
+        fields = ['id', 'paper', 'first_name', 'last_name', 'corpus',]
 
 
 class InstitutionInstanceFilter(filters.FilterSet):
     class Meta:
         model = InstitutionInstance
         fields = ['id', 'paper', 'name', 'department', 'address', 'state',
-                  'city', 'zip', 'country']
+                  'city', 'zip', 'country', 'corpus',]
 
 
 class AffiliationInstanceFilter(filters.FilterSet):
@@ -44,7 +44,7 @@ class AffiliationInstanceFilter(filters.FilterSet):
 
     class Meta:
         model = AffiliationInstance
-        fields = ['id', 'paper', 'author', 'institution', 'confidence']
+        fields = ['id', 'paper', 'author', 'institution', 'confidence', 'corpus',]
 
     def filter_confidence(self, queryset, value):
         return queryset.filter(confidence__gte=value)
@@ -53,4 +53,10 @@ class AffiliationInstanceFilter(filters.FilterSet):
 class MetadatumFilter(filters.FilterSet):
     class Meta:
         model = Metadatum
-        fields = ['id', 'paper', 'name', 'value']
+        fields = ['id', 'paper', 'name', 'value', 'corpus',]
+
+
+class IdentifierFilter(filters.FilterSet):
+    class Meta:
+        model = Identifier
+        fields = ['id', 'paper', 'name', 'value', 'corpus',]
