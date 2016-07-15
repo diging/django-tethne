@@ -52,6 +52,7 @@ class Corpus(models.Model):
     )
     source = models.CharField(max_length=35, choices=SOURCE_CHOICES)
     date_created = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User)
     label = models.CharField(max_length=255)
 
     def __len__(self):

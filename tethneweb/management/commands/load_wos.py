@@ -41,6 +41,7 @@ class CorpusHandler(object):
             'id': self.primary_keys['Corpus'],
             'source': Corpus.WOS,
             'label': label,
+            'created_by_id': 1,
         })
         self.tethne_corpus = tethne_corpus
 
@@ -51,7 +52,7 @@ class CorpusHandler(object):
             for tethne_reference in getattr(tethne_paper, 'citedReferences', []):
                 self._handle_cited_reference(tethne_reference, paper_id)
 
-            if len(self.hoppers['Paper']) > self.batch_size:
+            if len(self.hoppers['Paper']) >= self.batch_size:
                 self._commit()
         self._commit()
 
