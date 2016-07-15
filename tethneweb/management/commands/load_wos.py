@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Max
 
 import os
+import cPickle as pickle
 from collections import Counter, defaultdict
 
 from tethneweb.models import *
@@ -16,6 +17,11 @@ paper_fields = [
     ('issue', 'issue'),
     ('abstract', 'abstract'),
     ('journal', 'journal'),
+]
+
+exclude_fields = [
+    'citations',
+    'citedReferences'
 ]
 
 
@@ -70,7 +76,7 @@ class CorpusHandler(object):
         return ident
 
     def _exclude_paper_field(self, field):
-        exclude = list(zip(*paper_fields)[0]) + identifier_fields
+        exclude = list(zip(*paper_fields)[0]) + identifier_fields + exclude_fields
         return field.startswith('_') or field in exclude
 
     def _generate_metadata(self, tethne_paper):
@@ -80,8 +86,9 @@ class CorpusHandler(object):
         for field, value in tethne_paper.__dict__.iteritems():
             if self._exclude_paper_field(field):
                 continue
-            if type(value) is not unicode:
-                value = unicode(value)
+            value = pickle.dumps(value)
+            # if type(value) is not unicode:
+            #     value = pickle.dumps(value)
 
             metadata.append({
                 'name': field,
@@ -111,6 +118,7 @@ class CorpusHandler(object):
                 paper_data[dbfield] = value
 
         paper_data.update({'corpus_id': self.corpus.id,})
+        paper_data.update(**additional)
         paper_id = self._add_instance('Paper', Paper(**paper_data))
 
         metadata = []
