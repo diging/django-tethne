@@ -27,9 +27,9 @@ exclude_fields = [
 
 class CorpusHandler(object):
     _add_order = [
-        ('Paper', Paper),
-        ('Identifier', Identifier),
-        ('Metadatum', Metadatum),
+        ('PaperInstance', PaperInstance),
+        ('InstanceIdentifier', InstanceIdentifier),
+        ('InstanceMetadatum', InstanceMetadatum),
         ('AuthorInstance', AuthorInstance),
         ('InstitutionInstance', InstitutionInstance),
         ('AffiliationInstance', AffiliationInstance),
@@ -58,7 +58,7 @@ class CorpusHandler(object):
             for tethne_reference in getattr(tethne_paper, 'citedReferences', []):
                 self._handle_cited_reference(tethne_reference, paper_id)
 
-            if len(self.hoppers['Paper']) >= self.batch_size:
+            if len(self.hoppers['PaperInstance']) >= self.batch_size:
                 self._commit()
         self._commit()
 
@@ -80,7 +80,7 @@ class CorpusHandler(object):
         return field.startswith('_') or field in exclude
 
     def _generate_metadata(self, tethne_paper):
-        # Generate data for Metadatum model.
+        # Generate data for InstanceMetadatum model.
         metadata = []
 
         for field, value in tethne_paper.__dict__.iteritems():
@@ -100,7 +100,7 @@ class CorpusHandler(object):
 
 
     def _generate_identifiers(self, tethne_paper):
-        # Generate data for Identifier model.
+        # Generate data for InstanceIdentifier model.
         identifiers = []
         for field in identifier_fields:
             value = getattr(tethne_paper, field, None)
@@ -126,18 +126,18 @@ class CorpusHandler(object):
             'created_by_id': 1,
         })
         paper_data.update(**additional)
-        paper_id = self._add_instance('Paper', Paper(**paper_data))
+        paper_id = self._add_instance('PaperInstance', PaperInstance(**paper_data))
 
         metadata = []
         for metadata_data in self._generate_metadata(tethne_paper):
             metadata_data.update({'paper_id': paper_id})
-            self._add_instance('Metadatum', Metadatum(**metadata_data))
+            self._add_instance('InstanceMetadatum', InstanceMetadatum(**metadata_data))
 
         identifiers = []
         for identifier_data in self._generate_identifiers(tethne_paper):
 
             identifier_data.update({'paper_id': paper_id})
-            self._add_instance('Identifier', Identifier(**identifier_data))
+            self._add_instance('InstanceIdentifier', InstanceIdentifier(**identifier_data))
 
         self._handle_authors(tethne_paper, paper_id)
         return paper_id

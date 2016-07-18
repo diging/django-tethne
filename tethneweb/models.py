@@ -68,24 +68,24 @@ class Corpus(models.Model):
         return self.papers.count()
 
 
-class Metadatum(CorpusComponentMixin):
+class InstanceMetadatum(CorpusComponentMixin):
     """
     Catch-all model for freeform bibliographic metadata.
     """
     id = models.PositiveIntegerField(primary_key=True)
     name = models.CharField(max_length=255)
     value = models.TextField()
-    paper = models.ForeignKey('Paper', related_name='metadata')
+    paper = models.ForeignKey('PaperInstance', related_name='metadata')
     """The record that the :class:`.Metadatum` describes."""
 
 
-class Identifier(CorpusComponentMixin):
+class InstanceIdentifier(CorpusComponentMixin):
     """
     A unique identifier for a :class:`.Paper`\.
     """
     id = models.PositiveIntegerField(primary_key=True)
 
-    paper = models.ForeignKey('Paper', related_name='identifiers')
+    paper = models.ForeignKey('PaperInstance', related_name='identifiers')
     """The record that the :class:`.Identifier` instance identifies."""
 
     name = models.CharField(max_length=255)
@@ -146,6 +146,22 @@ class Institution(models.Model):
     country = models.CharField(max_length=255, null=True, blank=True)
 
 
+class PaperInstance(CorpusComponentMixin):
+    """
+    A single bibliographic record.
+    """
+    id = models.PositiveIntegerField(primary_key=True)
+    publication_date = models.IntegerField(null=True, blank=True)
+    title = models.CharField(max_length=255, null=True, blank=True)
+    volume = models.CharField(max_length=40, null=True, blank=True)
+    issue = models.CharField(max_length=40, null=True, blank=True)
+    journal = models.CharField(max_length=255, null=True, blank=True)
+    abstract = models.TextField(null=True)
+
+    concrete = models.BooleanField(default=True)
+    cited_by = models.ForeignKey('PaperInstance', related_name='cited_references', null=True, blank=True)
+
+
 class AuthorInstance(CorpusComponentMixin):
     """
     An instantiation of an :class:`.Author` in a particular bibliographic
@@ -155,7 +171,7 @@ class AuthorInstance(CorpusComponentMixin):
     be directly populated from data.
     """
     id = models.PositiveIntegerField(primary_key=True)
-    paper = models.ForeignKey('Paper', related_name='author_instances')
+    paper = models.ForeignKey('PaperInstance', related_name='author_instances')
 
     first_name = models.CharField(max_length=255, null=True, blank=True)
     """We may only have a surname, so this is optional."""
@@ -173,7 +189,7 @@ class InstitutionInstance(CorpusComponentMixin):
     """
     id = models.PositiveIntegerField(primary_key=True)
     name = models.CharField(max_length=255)
-    paper = models.ForeignKey(Paper, related_name='institutions')
+    paper = models.ForeignKey('PaperInstance', related_name='institutions')
 
     department = models.CharField(max_length=255, null=True, blank=True)
     address = models.TextField()
@@ -191,7 +207,7 @@ class AffiliationInstance(CorpusComponentMixin):
     :class:`.InstitutionInstance`\.
     """
     id = models.PositiveIntegerField(primary_key=True)
-    paper = models.ForeignKey(Paper, related_name='affiliations')
+    paper = models.ForeignKey('PaperInstance', related_name='affiliations')
     author = models.ForeignKey('AuthorInstance', related_name='affiliations')
     institution = models.ForeignKey('InstitutionInstance',
                                     related_name='affiliations')
@@ -236,10 +252,10 @@ class Affiliation(DisambiguationMixin):
     occur_date = models.DateField(null=True, blank=True)
 
 
-class CitationIdentity(DisambiguationMixin):
+class PaperIdentity(DisambiguationMixin):
     """
-    Represents the assertion that a :class:`.CitedReference` refers to a
+    Represents the assertion that a :class:`.PaperInstance` refers to a
     specific :class:`.Paper`\.
     """
     paper = models.ForeignKey('Paper', related_name='instantiations')
-    cited_reference = models.ForeignKey('Paper', related_name='identities')
+    instance = models.ForeignKey('PaperInstance', related_name='identities')

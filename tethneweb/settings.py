@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'tethneweb',
 ]
 
@@ -80,8 +81,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get('DJANGO_DB_NAME', 'tethne'),
-        'USER': os.environ.get('DJANGO_DB_USER', 'tethneuser'),
-        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', 'password'),
+        'USER': os.environ.get('DJANGO_DB_USER', 'tethne'),
+        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', 'tethne'),
         'HOST': os.environ.get('DJANGO_DB_PASSWORD', 'localhost'),
         'PORT': os.environ.get('DJANGO_DB_PORT', '3306'),
     }
@@ -126,3 +127,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 20,
+}
+
+# Must use SSL for TokenAuthentication!!
+# SECURE_SSL_REDIRECT = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

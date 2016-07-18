@@ -22,12 +22,12 @@ from tethneweb import views
 router = routers.DefaultRouter()
 router.register(r'corpus', views.CorpusViewSet)
 router.register(r'user', views.UserViewSet)
-router.register(r'paper', views.PaperViewSet)
+router.register(r'paper_instance', views.PaperInstanceViewSet)
 router.register(r'author_instance', views.AuthorInstanceViewSet)
 router.register(r'institution_instance', views.InstitutionInstanceViewSet)
 router.register(r'affiliation_instance', views.AffiliationInstanceViewSet)
-router.register(r'metadatum', views.MetadatumViewSet)
-router.register(r'identifier', views.IdentifierViewSet)
+router.register(r'instance_metadatum', views.InstanceMetadatumViewSet)
+router.register(r'instance_identifier', views.InstanceIdentifierViewSet)
 
 
 urlpatterns = [

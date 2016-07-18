@@ -7,7 +7,7 @@ from rest_framework import filters
 from tethneweb.models import *
 
 
-class PaperFilter(filters.FilterSet):
+class PaperInstanceFilter(filters.FilterSet):
     title = django_filters.CharFilter(name='title', lookup_type='icontains')
     abstract = django_filters.CharFilter(name='abstract', lookup_type='icontains')
     journal = django_filters.CharFilter(name='journal', lookup_type='icontains')
@@ -15,7 +15,7 @@ class PaperFilter(filters.FilterSet):
     citations = django_filters.MethodFilter()
 
     class Meta:
-        model = Paper
+        model = PaperInstance
         fields = ['title', 'journal', 'publication_date', 'corpus', 'volume',
                   'issue', 'abstract', 'concrete', 'cited_by', 'id',
                   'citations']
@@ -50,13 +50,13 @@ class AffiliationInstanceFilter(filters.FilterSet):
         return queryset.filter(confidence__gte=value)
 
 
-class MetadatumFilter(filters.FilterSet):
+class InstanceMetadatumFilter(filters.FilterSet):
     class Meta:
-        model = Metadatum
+        model = InstanceMetadatum
         fields = ['id', 'paper', 'name', 'value', 'corpus',]
 
 
-class IdentifierFilter(filters.FilterSet):
+class InstanceIdentifierFilter(filters.FilterSet):
     class Meta:
-        model = Identifier
+        model = InstanceIdentifier
         fields = ['id', 'paper', 'name', 'value', 'corpus',]

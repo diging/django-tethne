@@ -31,17 +31,17 @@ class AcceptsRequestSerializer(serializers.HyperlinkedModelSerializer):
         super(AcceptsRequestSerializer, self).__init__(*args, **kwargs)
 
 
-class IdentifierSerializer(serializers.HyperlinkedModelSerializer):
+class InstanceIdentifierSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Identifier
+        model = InstanceIdentifier
         fields = ('url', 'id', 'paper', 'name', 'value', 'corpus')
 
 
-class MetadatumSerializer(serializers.HyperlinkedModelSerializer):
+class InstanceMetadatumSerializer(serializers.HyperlinkedModelSerializer):
     value = serializers.SerializerMethodField('unpickle_value')
 
     class Meta:
-        model = Metadatum
+        model = InstanceMetadatum
         fields = ('url', 'id', 'name', 'value', 'paper', 'corpus',)
 
     def unpickle_value(self, obj):
@@ -81,17 +81,17 @@ class AffiliationInstanceSerializer(serializers.HyperlinkedModelSerializer):
                   'corpus',)
 
 
-class PaperSerializer(AcceptsRequestSerializer):
+class PaperInstanceSerializer(AcceptsRequestSerializer):
     citations = serializers.SerializerMethodField('citations_link')
     authors = serializers.SerializerMethodField('author_instances_link')
     institutions = serializers.SerializerMethodField('institution_instances_link')
     affiliations = serializers.SerializerMethodField('affiliation_instances_link')
     metadata = serializers.SerializerMethodField('metadatum_link')
 
-    identifiers = IdentifierSerializer(many=True)
+    identifiers = InstanceIdentifierSerializer(many=True)
 
     class Meta:
-        model = Paper
+        model = PaperInstance
         fields = ('url', 'id', 'corpus', 'publication_date', 'title', 'volume',
                   'issue', 'journal', 'abstract', 'concrete', 'cited_by',
                   'citations', 'authors', 'institutions', 'affiliations',
@@ -99,7 +99,7 @@ class PaperSerializer(AcceptsRequestSerializer):
 
     def citations_link(self, obj):
         params = {'cited_by': obj.id, 'concrete': False}
-        return link_for('paper-list', self.request, params)
+        return link_for('paperinstance-list', self.request, params)
 
     def author_instances_link(self, obj):
         params = {'paper': obj.id}
@@ -115,7 +115,7 @@ class PaperSerializer(AcceptsRequestSerializer):
 
     def metadatum_link(self, obj):
         params = {'paper': obj.id}
-        return link_for('metadatum-list', self.request, params)
+        return link_for('instancemetadatum-list', self.request, params)
 
 
 class CorpusSerializer(AcceptsRequestSerializer):
@@ -134,11 +134,11 @@ class CorpusSerializer(AcceptsRequestSerializer):
 
     def papers_link(self, obj):
         params = {'corpus': obj.id, 'concrete': True}
-        return link_for('paper-list', self.request, params)
+        return link_for('paperinstance-list', self.request, params)
 
     def citations_link(self, obj):
         params = {'corpus': obj.id, 'concrete': False}
-        return link_for('paper-list', self.request, params)
+        return link_for('paperinstance-list', self.request, params)
 
     def author_instances_link(self, obj):
         params = {'corpus': obj.id}
@@ -154,7 +154,7 @@ class CorpusSerializer(AcceptsRequestSerializer):
 
     def metadatum_link(self, obj):
         params = {'corpus': obj.id}
-        return link_for('metadatum-list', self.request, params)
+        return link_for('instancemetadatum-list', self.request, params)
 
 
 
@@ -285,14 +285,14 @@ class AffiliationInstanceViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
         return Response({'id_map': id_map})
 
 
-class PaperViewSet(PassRequestToSerializerMixin, CreatorOnlyMixin, viewsets.ModelViewSet):
-    queryset = Paper.objects.all()
-    serializer_class = PaperSerializer
+class PaperInstanceViewSet(PassRequestToSerializerMixin, CreatorOnlyMixin, viewsets.ModelViewSet):
+    queryset = PaperInstance.objects.all()
+    serializer_class = PaperInstanceSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_class = PaperFilter
+    filter_class = PaperInstanceFilter
 
     def create(self, request):
-        max_id = Paper.objects.aggregate(Max('id'))['id__max']
+        max_id = PaperInstance.objects.aggregate(Max('id'))['id__max']
         if max_id:
             max_id += 1
         else:
@@ -310,19 +310,19 @@ class PaperViewSet(PassRequestToSerializerMixin, CreatorOnlyMixin, viewsets.Mode
                     ident = datum['cited_by_id']
                     datum['cited_by_id'] = id_map.get(ident, ident)
                 max_id += 1
-                instances.append(Paper(**datum))
-            Paper.objects.bulk_create(instances)
+                instances.append(PaperInstance(**datum))
+            PaperInstance.objects.bulk_create(instances)
         return Response({'id_map': id_map})
 
 
-class MetadatumViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
-    queryset = Metadatum.objects.all()
-    serializer_class = MetadatumSerializer
+class InstanceMetadatumViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
+    queryset = InstanceMetadatum.objects.all()
+    serializer_class = InstanceMetadatumSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_class = MetadatumFilter
+    filter_class = InstanceMetadatumFilter
 
     def create(self, request):
-        max_id = Metadatum.objects.aggregate(Max('id'))['id__max']
+        max_id = InstanceMetadatum.objects.aggregate(Max('id'))['id__max']
         if max_id:
             max_id += 1
         else:
@@ -336,19 +336,19 @@ class MetadatumViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
                 id_map[temp_ident] = max_id
                 datum.update({'id': max_id, 'created_by': request.user})
                 max_id += 1
-                instances.append(Metadatum(**datum))
-            Metadatum.objects.bulk_create(instances)
+                instances.append(InstanceMetadatum(**datum))
+            InstanceMetadatum.objects.bulk_create(instances)
         return Response({'id_map': id_map})
 
 
-class IdentifierViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
-    queryset = Identifier.objects.all()
-    serializer_class = IdentifierSerializer
+class InstanceIdentifierViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
+    queryset = InstanceIdentifier.objects.all()
+    serializer_class = InstanceIdentifierSerializer
     filter_backends = (filters.DjangoFilterBackend,)
-    filter_class = IdentifierFilter
+    filter_class = InstanceIdentifierFilter
 
     def create(self, request):
-        max_id = Identifier.objects.aggregate(Max('id'))['id__max']
+        max_id = InstanceIdentifier.objects.aggregate(Max('id'))['id__max']
         if max_id:
             max_id += 1
         else:
@@ -362,6 +362,6 @@ class IdentifierViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
                 id_map[temp_ident] = max_id
                 datum.update({'id': max_id, 'created_by': request.user})
                 max_id += 1
-                instances.append(Identifier(**datum))
-            Identifier.objects.bulk_create(instances)
+                instances.append(InstanceIdentifier(**datum))
+            InstanceIdentifier.objects.bulk_create(instances)
         return Response({'id_map': id_map})
