@@ -20,10 +20,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '1j%m+r0t=yess6j)1c3-^5e)kwgwe0(iqr_k7mn=dl0016z$$x'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = eval(os.environ.get('DJANGO_DEBUG', 'True'))
 
 ALLOWED_HOSTS = []
 
@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django-tethne'
+    'rest_framework',
+    'rest_framework.authtoken',
+    'tethneweb',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -51,7 +53,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'django-tethne.urls'
+ROOT_URLCONF = 'tethneweb.urls'
 
 TEMPLATES = [
     {
@@ -69,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'django-tethne.wsgi.application'
+WSGI_APPLICATION = 'tethneweb.wsgi.application'
 
 
 # Database
@@ -77,12 +79,12 @@ WSGI_APPLICATION = 'django-tethne.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'tethne',
-        'USER':'tethneuser',
-        'PASSWORD':'password',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('DJANGO_DB_NAME', 'tethne'),
+        'USER': os.environ.get('DJANGO_DB_USER', 'tethne'),
+        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', 'tethne'),
+        'HOST': os.environ.get('DJANGO_DB_PASSWORD', 'localhost'),
+        'PORT': os.environ.get('DJANGO_DB_PORT', '3306'),
     }
 
 }
@@ -125,3 +127,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 20,
+}
+
+# Must use SSL for TokenAuthentication!!
+# SECURE_SSL_REDIRECT = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
