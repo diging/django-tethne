@@ -1,0 +1,49 @@
+{% extends "tethneweb/base.html" %}
+
+{% load staticfiles %}
+
+{% block body %}
+
+<div class="container-fluid">
+    <div class="logo-container text-center">
+        <h1>Tethne: Web</h1>
+    </div>
+    <div class="h4 text-center">
+        <span class="text-warning">{{ paper_count }}</span> bibliographic records
+    </div>
+    <div class="h4 text-center">
+        <span class="text-warning">{{ citation_count }}</span> citations
+    </div>
+    <div class="h4 text-center">
+        <span class="text-warning">{{ author_count }}</span> author names
+    </div>
+
+
+</div>
+<footer class="footer text-center">
+    <div class="container-fluid">
+        <p class="text-muted">
+            <a class="btn" href="http://diging.github.io/tethne"
+                data-toggle="tooltip"
+                data-title="Tethne: Python Library">
+                <i class="fa fa-book fa-2x" aria-hidden="true"></i>
+            </a>
+            <a class="btn" href="http://github.com/diging/django-tethne"
+                data-toggle="tooltip"
+                data-title="Tethne: Web">
+                <i class="fa fa-server fa-2x" aria-hidden="true"></i>
+            </a>
+            <a class="btn" href="http://github.com/diging/django-tethne-client"
+                data-toggle="tooltip"
+                data-title="Tethne: Web Client">
+                <i class="fa fa-user-secret fa-2x" aria-hidden="true"></i>
+            </a>
+            <a class="btn" href="rest/"
+                data-toggle="tooltip"
+                data-title="REST API">
+                <i class="fa fa-terminal fa-2x" aria-hidden="true"></i>
+            </a>
+        </p>
+    </div>
+</footer>
+{% endblock %}

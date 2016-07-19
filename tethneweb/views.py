@@ -6,6 +6,13 @@ from django.core.paginator import Paginator
 from rest_framework.response import Response
 from rest_framework.reverse import reverse_lazy
 
+from django.shortcuts import render, get_object_or_404
+from django.template import RequestContext
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http import JsonResponse
+from django.db.models.query_utils import Q
+from django.db.models import Count
+
 from urlparse import urlparse, parse_qs, SplitResult
 from urllib import urlencode
 
@@ -14,7 +21,6 @@ from tethneweb.filters import *
 
 import cPickle as pickle
 import json
-
 
 
 def link_for(url_name, request, params):
@@ -45,7 +51,10 @@ class InstanceMetadatumSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'id', 'name', 'value', 'paper', 'corpus',)
 
     def unpickle_value(self, obj):
-        return pickle.loads(str(obj.value))
+        # JSON can't support the full range of data structures here (e.g. dict
+        #  with tuple keys), so we'll just return the raw pickled object and
+        #  let the client sort it out.
+        return obj.value #str(pickle.loads(str(obj.value)))
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -365,3 +374,15 @@ class InstanceIdentifierViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
                 instances.append(InstanceIdentifier(**datum))
             InstanceIdentifier.objects.bulk_create(instances)
         return Response({'id_map': id_map})
+
+
+
+def home(request):
+    template = "tethneweb/home.html"
+    context = RequestContext(request, {
+        'paper_count': PaperInstance.objects.filter(concrete=True).count(),
+        'citation_count': PaperInstance.objects.filter(concrete=False).count(),
+        'author_count': AuthorInstance.objects.count()
+    })
+
+    return render(request, template, context)

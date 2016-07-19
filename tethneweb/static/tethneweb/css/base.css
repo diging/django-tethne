@@ -1,0 +1,32 @@
+
+
+
+.logo {
+    margin: 0 auto;
+    margin-top: 10%;
+
+}
+
+a {
+    color: #b73333;
+}
+
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+  font-family: fantasy;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+}
