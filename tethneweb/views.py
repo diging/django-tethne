@@ -19,7 +19,6 @@ from urllib import urlencode
 from tethneweb.models import *
 from tethneweb.filters import *
 
-import cPickle as pickle
 import json
 
 
