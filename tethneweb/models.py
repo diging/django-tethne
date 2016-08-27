@@ -64,8 +64,8 @@ class Corpus(models.Model):
     created_by = models.ForeignKey(User)
     label = models.CharField(max_length=255)
 
-    def __len__(self):
-        return self.papers.count()
+    # def __len__(self):
+    #     return self.papers.count()
 
     def __unicode__(self):
         return self.label
