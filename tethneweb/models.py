@@ -67,6 +67,9 @@ class Corpus(models.Model):
     def __len__(self):
         return self.papers.count()
 
+    def __unicode__(self):
+        return self.label
+
 
 class InstanceMetadatum(CorpusComponentMixin):
     """
