@@ -390,13 +390,13 @@ def check_unique(request):
     if request.method == 'GET':
         checksum = request.GET.get('checksum')
         corpus_id = request.GET.get('corpus')
-        unique = Paper.objects.filter(checksum=checksum, corpus=corpus_id).count() == 0
+        unique = PaperInstance.objects.filter(checksum=checksum, corpus=corpus_id).count() == 0
         return Response({'unique': unique})
     elif request.method == 'POST':
         checksums = request.POST.get_list('checksum')
         corpus_id = request.POST.get('corpus')
         return Response({
             'unique': [
-                Paper.objects.filter(checksum=checksum, corpus=corpus_id).count() == 0
+                PaperInstance.objects.filter(checksum=checksum, corpus=corpus_id).count() == 0
                 for checksum in checksums
             ]})
