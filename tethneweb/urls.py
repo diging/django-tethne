@@ -35,6 +35,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api-token-auth/', auth_views.obtain_auth_token),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^check_unique/', views.check_unique, 'check-unique'),
+    url(r'^check_unique/', views.check_unique, name='check-unique'),
     url(r'^$', views.home, name="home"),
 ]
