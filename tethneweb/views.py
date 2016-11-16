@@ -103,7 +103,7 @@ class PaperInstanceSerializer(AcceptsRequestSerializer):
         fields = ('url', 'id', 'corpus', 'publication_date', 'title', 'volume',
                   'issue', 'journal', 'abstract', 'concrete', 'cited_by',
                   'citations', 'authors', 'institutions', 'affiliations',
-                  'metadata', 'identifiers')
+                  'metadata', 'identifiers', 'checksum')
 
     def citations_link(self, obj):
         params = {'cited_by': obj.id, 'concrete': False}
