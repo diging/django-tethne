@@ -391,11 +391,11 @@ def check_unique(request):
         checksum = request.GET.get('checksum')
         corpus_id = request.GET.get('corpus')
         unique = PaperInstance.objects.filter(checksum=checksum, corpus=corpus_id).count() == 0
-        return Response({'unique': unique})
+        return JsonResponse({'unique': unique})
     elif request.method == 'POST':
         checksums = request.POST.get_list('checksum')
         corpus_id = request.POST.get('corpus')
-        return Response({
+        return JsonResponse({
             'unique': [
                 PaperInstance.objects.filter(checksum=checksum, corpus=corpus_id).count() == 0
                 for checksum in checksums
