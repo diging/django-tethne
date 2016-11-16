@@ -165,7 +165,6 @@ class CorpusSerializer(AcceptsRequestSerializer):
         return link_for('instancemetadatum-list', self.request, params)
 
 
-
 class PassRequestToSerializerMixin(object):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -385,3 +384,9 @@ def home(request):
     })
 
     return render(request, template, context)
+
+
+def check_unique(result):
+    checksum = request.GET.get('checksum')
+    corpus_id = request.GET.get('corpus')
+    return Paper.objects.filter(checksum=checksum, corpus=corpus_id).count() == 0

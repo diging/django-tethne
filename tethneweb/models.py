@@ -154,6 +154,10 @@ class PaperInstance(CorpusComponentMixin):
     A single bibliographic record.
     """
     id = models.PositiveIntegerField(primary_key=True)
+
+    checksum = models.TextField(blank=True, null=True)
+    """Can be used to avoid adding duplicate data."""
+
     publication_date = models.IntegerField(null=True, blank=True)
     title = models.CharField(max_length=255, null=True, blank=True)
     volume = models.CharField(max_length=40, null=True, blank=True)
