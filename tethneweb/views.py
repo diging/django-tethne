@@ -386,7 +386,7 @@ def home(request):
     return render(request, template, context)
 
 
-def check_unique(result):
+def check_unique(request):
     if request.method == 'GET':
         checksum = request.GET.get('checksum')
         corpus_id = request.GET.get('corpus')
