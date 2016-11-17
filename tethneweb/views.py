@@ -12,6 +12,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from django.db.models.query_utils import Q
 from django.db.models import Count
+from django.views.decorators.csrf import csrf_exempt
 
 from urlparse import urlparse, parse_qs, SplitResult
 from urllib import urlencode
@@ -312,6 +313,9 @@ class PaperInstanceViewSet(PassRequestToSerializerMixin, CreatorOnlyMixin, views
                 temp_ident = datum.pop('id')
                 id_map[temp_ident] = max_id
                 datum.update({'id': max_id, 'created_by': request.user})
+                for field in ['title', 'journal']:
+                    if len(datum.get(field, '')) > 255:
+                        datum[field] = datum.get(field, '')[:255]
                 # Citations may be lurking in here.
                 if 'cited_by_id' in datum:
                     ident = datum['cited_by_id']
@@ -344,7 +348,11 @@ class InstanceMetadatumViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
                 datum.update({'id': max_id, 'created_by': request.user})
                 max_id += 1
                 instances.append(InstanceMetadatum(**datum))
-            InstanceMetadatum.objects.bulk_create(instances)
+            try:
+                InstanceMetadatum.objects.bulk_create(instances)
+            except Exception as E:
+                print instances
+                raise E
         return Response({'id_map': id_map})
 
 
@@ -370,7 +378,9 @@ class InstanceIdentifierViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
                 datum.update({'id': max_id, 'created_by': request.user})
                 max_id += 1
                 instances.append(InstanceIdentifier(**datum))
+
             InstanceIdentifier.objects.bulk_create(instances)
+
         return Response({'id_map': id_map})
 
 
@@ -386,6 +396,7 @@ def home(request):
     return render(request, template, context)
 
 
+@csrf_exempt
 def check_unique(request):
     if request.method == 'GET':
         checksum = request.GET.get('checksum')
@@ -393,7 +404,7 @@ def check_unique(request):
         unique = PaperInstance.objects.filter(checksum=checksum, corpus=corpus_id).count() == 0
         return JsonResponse({'unique': unique})
     elif request.method == 'POST':
-        checksums = request.POST.get_list('checksum')
+        checksums = request.POST.getlist('checksum')
         corpus_id = request.POST.get('corpus')
         return JsonResponse({
             'unique': [
