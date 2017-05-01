@@ -321,7 +321,7 @@ class PaperInstanceViewSet(PassRequestToSerializerMixin, CreatorOnlyMixin, views
                         datum[field] = datum.get(field, '')[:255]
                 for field in ['volume', 'issue']:
                     if len(str(datum.get(field, ''))) > 40:
-                        print '::', field, datum.get(field)
+                        print '::', field,l datum.get(field)
                         datum[field] = int(str(datum.get(field, ''))[:40])
                 # Citations may be lurking in here.
                 if 'cited_by_id' in datum:

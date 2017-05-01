@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = eval(os.environ.get('DJANGO_DEBUG', 'False'))
+DEBUG = eval(os.environ.get('DJANGO_DEBUG', 'True'))
 
 ALLOWED_HOSTS = ['*']
 
@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'tethneweb',
+    'tethneweb'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -78,16 +78,9 @@ WSGI_APPLICATION = 'tethneweb.wsgi.application'
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DJANGO_DB_NAME', 'tethne'),
-        'USER': os.environ.get('DJANGO_DB_USER', 'tethne'),
-        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', 'tethne'),
-        'HOST': os.environ.get('DJANGO_DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DJANGO_DB_PORT', '3306'),
-    }
-
+    'default': dj_database_url.config()
 }
+DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
 
 
 # Password validation
@@ -128,8 +121,7 @@ USE_THOUSAND_SEPARATOR = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = '/tethne/static/'
-STATIC_ROOT = 'static'
+STATIC_URL = '/static/'
 
 
 REST_FRAMEWORK = {
@@ -146,5 +138,5 @@ REST_FRAMEWORK = {
 }
 
 # Must use SSL for TokenAuthentication!!
-# SECURE_SSL_REDIRECT = True
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
