@@ -232,6 +232,9 @@ class AuthorInstanceViewSet(PassRequestToSerializerMixin, CreatorOnlyMixin, view
         if type(data) is list and len(data) > 0:
             instances = []
             for datum in data:
+                for field in ['first_name', 'last_name']:
+                    if len(datum.get(field, '')) > 255:
+                        datum[field] = datum.get(field, '')[:255]
                 temp_ident = datum.pop('id')
                 id_map[temp_ident] = max_id
                 datum.update({'id': max_id, 'created_by': request.user})
@@ -316,6 +319,10 @@ class PaperInstanceViewSet(PassRequestToSerializerMixin, CreatorOnlyMixin, views
                 for field in ['title', 'journal']:
                     if len(datum.get(field, '')) > 255:
                         datum[field] = datum.get(field, '')[:255]
+                for field in ['volume', 'issue']:
+                    if len(str(datum.get(field, ''))) > 40:
+                        print '::', field, datum.get(field)
+                        datum[field] = int(str(datum.get(field, ''))[:40])
                 # Citations may be lurking in here.
                 if 'cited_by_id' in datum:
                     ident = datum['cited_by_id']
@@ -343,16 +350,15 @@ class InstanceMetadatumViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
         if type(data) is list and len(data) > 0:
             instances = []
             for datum in data:
+                for field in ['name']:
+                    if len(datum.get(field, '')) > 255:
+                        datum[field] = datum.get(field, '')[:255]
                 temp_ident = datum.pop('id')
                 id_map[temp_ident] = max_id
                 datum.update({'id': max_id, 'created_by': request.user})
                 max_id += 1
                 instances.append(InstanceMetadatum(**datum))
-            try:
-                InstanceMetadatum.objects.bulk_create(instances)
-            except Exception as E:
-                print instances
-                raise E
+            InstanceMetadatum.objects.bulk_create(instances)
         return Response({'id_map': id_map})
 
 
@@ -373,6 +379,9 @@ class InstanceIdentifierViewSet(CreatorOnlyMixin, viewsets.ModelViewSet):
         if type(data) is list and len(data) > 0:
             instances = []
             for datum in data:
+                for field in ['name', 'value']:
+                    if len(datum.get(field, '')) > 255:
+                        datum[field] = datum.get(field, '')[:255]
                 temp_ident = datum.pop('id')
                 id_map[temp_ident] = max_id
                 datum.update({'id': max_id, 'created_by': request.user})
